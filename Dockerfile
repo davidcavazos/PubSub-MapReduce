@@ -1,0 +1,7 @@
+FROM golang
+
+ENV ROOT /app
+WORKDIR $ROOT
+ADD . $ROOT
+
+ENV GOPATH $ROOT
