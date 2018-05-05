@@ -28,14 +28,14 @@ func main() {
 	// Command line arguments
 	project := flag.String(
 		"project", os.Getenv("PROJECT"), "Google Cloud Project ID")
-	inputTopic := flag.String(
-		"input-topic", os.Getenv("REDUCER_TOPIC"), "Input topic")
+	reducerTopicName := flag.String(
+		"reducer-topic", "reducer", "Reducer topic")
 	region := flag.String(
-		"region", os.Getenv("IOT_REGION"), "IoT Core Region")
+		"region", "us-central1", "IoT Core Region")
 	registry := flag.String(
-		"registry", os.Getenv("IOT_REGISTRY"), "IoT Core Registry")
+		"registry", "registry", "IoT Core Registry")
 	deviceID := flag.String(
-		"device", os.Getenv("IOT_DEVICE"), "IoT Core Device ID")
+		"device", "device", "IoT Core Device ID")
 	skipIoT := flag.Bool("skip-iot", false, "Skip updating to IoT Core")
 	flag.Parse()
 
@@ -59,7 +59,7 @@ func main() {
 
 	// Get input subscription
 	reducerSub, err := util.GetOrCreateSubscription(
-			ctx, pubsubClient, *inputTopic, *inputTopic)
+			ctx, pubsubClient, *reducerTopicName, *reducerTopicName)
 	if err != nil {
 		log.Fatalf("%v: GetOrCreateSubscription: %v", NAME, err)
 	}

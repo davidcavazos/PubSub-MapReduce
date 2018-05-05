@@ -21,10 +21,10 @@ func main() {
 	// Command line arguments
 	project := flag.String(
 		"project", os.Getenv("PROJECT"), "Google Cloud Project ID")
-	inputTopic := flag.String(
-		"input-topic", os.Getenv("KNOBS_TOPIC"), "Input topic")
-	outputTopic := flag.String(
-		"output-topic", os.Getenv("FLOOD_TOPIC"), "Output topic")
+	knobsTopicName := flag.String(
+		"knobs-topic", "knobs", "Knobs topic")
+	floodTopicName := flag.String(
+		"flood-topic", "flood", "Flood topic")
 	flag.Parse()
 
 	// Creates the clients
@@ -37,13 +37,13 @@ func main() {
 
 	// Get input subscription
 	knobsSub, err := util.GetOrCreateSubscription(
-			ctx, iotClient, *inputTopic, *inputTopic)
+			ctx, iotClient, *knobsTopicName, *knobsTopicName)
 	if err != nil {
 		log.Fatalf("%v: GetOrCreateSubscription: %v", NAME, err)
 	}
 
 	// Get output topic
-	floodTopic, err := util.GetOrCreateTopic(ctx, iotClient, *outputTopic)
+	floodTopic, err := util.GetOrCreateTopic(ctx, iotClient, *floodTopicName)
 	if err != nil {
 		log.Fatalf("%v: GetOrCreateTopic: %v", NAME, err)
 	}
