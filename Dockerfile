@@ -1,8 +1,11 @@
 FROM golang
 
-ENV ROOT /app
-WORKDIR $ROOT
-ADD . $ROOT
+ARG credentials
+
+WORKDIR /app
+ADD . /app
+
+ENV GOOGLE_APPLICATION_CREDENTIALS credentials.json
 
 RUN apt-get update
 RUN apt-get upgrade -y

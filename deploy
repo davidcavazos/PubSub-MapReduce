@@ -1,0 +1,78 @@
+#!/bin/bash
+
+set -e
+
+if [ "$#" -ge 1 ]; then
+  PROJECT=$1
+elif [ -z "$PROJECT" ]; then
+  echo "Usage: $0 [ project [ docker-image-name ] [ docker-image-tag ] ]"
+  echo "The project can be specified by setting the PROJECT environment variable"
+  exit 1
+fi
+
+NAME=mapreduce
+if [ "$#" -ge 2 ]; then
+  NAME=$2
+fi
+
+TAG=latest
+if [ "$#" -ge 3 ]; then
+  TAG=$3
+fi
+
+IMAGE=gcr.io/$PROJECT/$NAME:$TAG
+
+echo "Copying credentials.json from $GOOGLE_APPLICATION_CREDENTIALS"
+cp $GOOGLE_APPLICATION_CREDENTIALS credentials.json
+echo "Building"
+docker build -t $IMAGE .
+
+echo "Pushing to gcr.io"
+gcloud auth configure-docker
+docker push $IMAGE
+
+
+function apply() {
+
+  NAME=$1
+  CPUS=$2
+  REPLICAS=$3
+  ARGS=$(for i in ${@:3}; do echo ", \"$i\""; done)
+
+  cat << EOF | kubectl apply -f -
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: $NAME
+  namespace: default
+  labels:
+    app: $NAME
+spec:
+  replicas: $REPLICAS
+  selector:
+    matchLabels:
+      app: $NAME
+  template:
+    metadata:
+      labels:
+        app: $NAME
+    spec:
+      containers:
+      - name: $NAME
+        image: $IMAGE
+        command: ["go"]
+        args: ["run", "$NAME.go", "-project", "$PROJECT" $ARGS]
+        resources:
+          requests:
+            cpu: $CPUS
+EOF
+}
+
+echo "Deleting existing deployments"
+kubectl delete deployments --all
+
+echo "Deploying"
+apply knobs 4 1
+apply flood 4 8
+apply mapper 4 8
+apply reducer 4 1 -skip-iot

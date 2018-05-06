@@ -39,8 +39,8 @@ func main() {
 	// Command line arguments
 	project := flag.String(
 		"project", os.Getenv("PROJECT"), "Google Cloud Project ID")
-	outputTopic := flag.String(
-		"output-topic", os.Getenv("KNOBS_TOPIC"), "Output topic")
+	knobsTopicName := flag.String(
+		"knobs-topic", "knobs", "Output topic")
 	n := flag.Int64("n", 10000, "Number of messages")
 	cycle := flag.Bool("cycle", false, "Make the messages cycle in a sine wave")
 	flag.Parse()
@@ -54,7 +54,7 @@ func main() {
 	}
 
 	// Get output topic
-	knobsTopic, err := util.GetOrCreateTopic(ctx, iotClient, *outputTopic)
+	knobsTopic, err := util.GetOrCreateTopic(ctx, iotClient, *knobsTopicName)
 	if err != nil {
 		log.Fatalf("%v: GetOrCreateTopic: %v", NAME, err)
 	}
