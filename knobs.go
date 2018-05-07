@@ -15,7 +15,8 @@ import (
 )
 
 var NAME = "knobs"
-var PUB_DELAY = 100 * time.Millisecond
+var PUB_DELAY = 200 * time.Millisecond
+var TIME_DELTA = PUB_DELAY.Seconds()  / time.Second.Seconds()
 
 func main() {
 	// Command line arguments
@@ -56,12 +57,13 @@ func main() {
 	// Every second, send a flood message with the latest known state of the knobs
 	latestKnobs := make([]util.KnobsMessage, util.TOTAL_KNOBS)
 	go func() {
-		for _ = range time.Tick(time.Second) {
+		for _ = range time.Tick(PUB_DELAY) {
 			windowTotal := int64(0)
 			flood := util.FloodMessage{make([]int64, util.TOTAL_KNOBS)}
 			for id, knob := range latestKnobs {
-				flood.Ns[id] = knob.N
-				windowTotal += knob.N
+				delta := int64(float64(knob.N) * TIME_DELTA)
+				flood.Ns[id] = delta
+				windowTotal += delta
 			}
 			if windowTotal == 0 {
 				continue

@@ -5,7 +5,7 @@ set -e
 if [ "$#" -ge 1 ]; then
   PROJECT=$1
 elif [ -z "$PROJECT" ]; then
-  echo "Usage: $0 [ project [ docker-image-name ] [ docker-image-tag ] ]"
+  echo "Usage: $0 [ project [ docker-image-name [ docker-image-tag ] ] ]"
   echo "The project can be specified by setting the PROJECT environment variable"
   exit 1
 fi
@@ -23,7 +23,7 @@ fi
 IMAGE=gcr.io/$PROJECT/$NAME:$TAG
 
 echo "Copying credentials.json from $GOOGLE_APPLICATION_CREDENTIALS"
-cp $GOOGLE_APPLICATION_CREDENTIALS credentials.json
+cp $GOOGLE_APPLICATION_CREDENTIALS credentials.json || true
 echo "Building"
 docker build -t $IMAGE .
 
@@ -31,13 +31,12 @@ echo "Pushing to gcr.io"
 gcloud auth configure-docker
 docker push $IMAGE
 
-
 function apply() {
 
   NAME=$1
   CPUS=$2
   REPLICAS=$3
-  ARGS=$(for i in ${@:3}; do echo ", \"$i\""; done)
+  ARGS=$(for i in ${@:4}; do echo ", \"$i\""; done)
 
   cat << EOF | kubectl apply -f -
 apiVersion: apps/v1beta1

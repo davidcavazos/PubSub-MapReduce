@@ -33,9 +33,9 @@ func main() {
 	region := flag.String(
 		"region", "us-central1", "IoT Core Region")
 	registry := flag.String(
-		"registry", "registry", "IoT Core Registry")
+		"iot-registry", "registry", "IoT Core Registry")
 	deviceID := flag.String(
-		"device", "device", "IoT Core Device ID")
+		"iot-device", "device", "IoT Core Device ID")
 	skipIoT := flag.Bool("skip-iot", false, "Skip updating to IoT Core")
 	flag.Parse()
 
